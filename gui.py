@@ -7,10 +7,11 @@ from tkinter import DISABLED
 
 
 
-
 customtkinter.set_appearance_mode('white')
 root = customtkinter.CTk()
 root.geometry("1080x550")
+
+
 
 def browse_file():
     file_path = filedialog.askopenfilename()
@@ -33,6 +34,8 @@ def execute():
     ret = Automate(file_path, username, password)
     if ret == False:
         messagebox.showerror("Error","Something went wrong")
+
+
 def Ammend_data():
     file_path = entry3.get()
     username = entry1.get()
@@ -44,6 +47,8 @@ def Ammend_data():
     ret = Ammend_Fields(file_path, username, password)
     if ret == False:
         messagebox.showerror("Error","Something went wrong")
+
+
 
 frame = customtkinter.CTkFrame(master=root)
 frame.pack(pady=20, padx=60, fill='both', expand=True)
