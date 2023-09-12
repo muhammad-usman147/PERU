@@ -55,6 +55,7 @@ frame.pack(pady=20, padx=60, fill='both', expand=True)
 frame.configure(width=500)
 button_font = customtkinter.CTkFont(size=20)
 
+
 inner_frame = customtkinter.CTkFrame(master=frame)
 inner_frame.pack()
 
@@ -66,6 +67,8 @@ entry3 = customtkinter.CTkEntry(master=inner_frame, placeholder_text="File Path"
 entry3.grid(row=1, column=0, pady=12, padx=10, sticky="ew")
 entry3.configure(width=500)  # Set desired width of the entry widget
 
+
+#HU-02 : Importing the database into the system
 browse_button = customtkinter.CTkButton(master=inner_frame, text="Browse", command=browse_file,
                                         bg_color='Green', fg_color='Green', font=button_font)
 browse_button.grid(row=1, column=1, pady=12, padx=10)
@@ -75,23 +78,21 @@ entry1.grid(row=2, column=0, pady=12, padx=10, sticky="ew")
 
 entry2 = customtkinter.CTkEntry(master=inner_frame, placeholder_text="Textbox2")
 entry2.grid(row=3, column=0, pady=12, padx=10, sticky="ew")
-try:
-    cond = requests.get("http://usman4485.pythonanywhere.com/damco-activation")
-    cond.raise_for_status()
-    cond = cond.text
-except requests.exceptions.RequestException as e:
-    cond = False
-    messagebox.showerror("Connection Error","Please Check your internet Connection")
-except:
-    cond = False
-    messagebox.showerror("Something Went Wrong","Unexpected Error")
 
-button = customtkinter.CTkButton(master=inner_frame, text="Button", command=execute,
+#HU-04 : System to learn from the imported database
+train_button = customtkinter.CTkButton(master=inner_frame, text="HU-04: Start Training", command=execute,
                                     bg_color='Green', fg_color='Green', font=button_font)
-button.grid(row=4, column=0, columnspan=2, pady=12, padx=10, sticky="ew")
+train_button.grid(row=4, column=0, columnspan=2, pady=12, padx=10, sticky="ew")
 
-print("-->",cond)
-if not cond == "True":
-    button.configure(state=DISABLED)
+
+#HU-05 : System Predictions
+predict_button = customtkinter.CTkButton(master=inner_frame, text='U-05: Predict', command = '#',
+                                        bg_color='Blue',fg_color='Blue', font=button_font)
+predict_button.grid(row=5,column=2,columnspan=2,pady=12,padx=10,sticky='ew')
+
+#HU-06: Visualize possible regisnation of employees from there table
+vis_resig_emp = customtkinter.CTkButton(master=inner_frame,text='HU-06: Show Resignations',command='#',
+                                        bg_color='Orange',fg_color='Orange',font=button_font,font_color='Green')
+vis_resig_emp.grid(row=5,column=2,columnspan=1,pady=12,padx=10,sticky='ew',)
 
 root.mainloop()
