@@ -49,11 +49,16 @@ def Ammend_data():
         messagebox.showerror("Error","Something went wrong")
 
 
+def on_hover(event):
+    vis_resig_emp.configure(text_color='LightBlue',fg_color='Green',bg_color='Green')
+def on_leave(event):
+    vis_resig_emp.configure(text_color='Green',fg_color='Orange',bg_color='Orange')
 
 frame = customtkinter.CTkFrame(master=root)
 frame.pack(pady=20, padx=60, fill='both', expand=True)
 frame.configure(width=500)
 button_font = customtkinter.CTkFont(size=20)
+button_font2 = customtkinter.CTkFont(size=18,weight='bold')
 
 
 inner_frame = customtkinter.CTkFrame(master=frame)
@@ -92,7 +97,8 @@ predict_button.grid(row=5,column=2,columnspan=2,pady=12,padx=10,sticky='ew')
 
 #HU-06: Visualize possible regisnation of employees from there table
 vis_resig_emp = customtkinter.CTkButton(master=inner_frame,text='HU-06: Show Resignations',command='#',
-                                        bg_color='Orange',fg_color='Orange',font=button_font,font_color='Green')
+                                        fg_color='Orange',font=button_font2,text_color='Green',hover_color='LightBlue')
 vis_resig_emp.grid(row=5,column=2,columnspan=1,pady=12,padx=10,sticky='ew',)
-
+vis_resig_emp.bind("<Enter>",on_hover)
+vis_resig_emp.bind("<Leave>",on_leave)
 root.mainloop()
