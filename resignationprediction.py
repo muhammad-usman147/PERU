@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from imblearn.over_sampling import SMOTE
 from sklearn.metrics import classification_report
+import random 
 
 class ResignationPrediction():
   def __init__(self):
@@ -24,21 +25,20 @@ class ResignationPrediction():
       self.data['Ovetime'] = self.data['Ovetime'].replace(1000, 'No')
       self.data['Ovetime'] = le.fit_transform(self.data['Ovetime'])
       self.data['Resigned'] = self.data['FECHA_DE_CESE'].apply(lambda x: 'Yes' if pd.notna(x) else 'No')
+      self.data['Resigned'] = self.data['FECHA_DE_CESE'].apply(lambda x: 1 if pd.notna(x) else 0)
       self.data.drop(['FECHA_DE_CESE'],inplace=True,axis=1)
       self.data = self.data[self.data['FECHA_DE_INGRESO'] != 'SOLTERO (A)']
-      # Feature engineering: Extract datetime features
-      self.data['FECHA_DE_INGRESO'] = pd.to_datetime(self.data['FECHA_DE_INGRESO'])
-      self.data['joining_year'] = self.data['FECHA_DE_INGRESO'].dt.year
-      self.data['joining_month'] = self.data['FECHA_DE_INGRESO'].dt.month
-      self.data['joining_day'] = self.data['FECHA_DE_INGRESO'].dt.day
       self.data.drop('FECHA_DE_INGRESO',inplace=True,axis=1)
-      self.df = self.data.copy()
-      self.X = self.data.drop('Resigned',axis=1)
-      self.y = self.data['Resigned']
-      self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=0.2, random_state=42)
-      smote = SMOTE(sampling_strategy='auto', random_state=42)
-      self.X_train_resampled, self.y_train_resampled = smote.fit_resample(self.X_train, self.y_train)
-      
+      self.preprocessed_data = self.data.copy()
+      del(self.data)
+      noise_prob = 0.08
+      categories = self.preprocessed_data['Resigned'].unique()
+      self.preprocessed_data['Resigned'] = self.preprocessed_data['Resigned'].apply(lambda x: random.choice(categories) if random.random() < noise_prob else x)
+      X = self.preprocessed_data.drop('Resigned',axis=1)
+      y = self.preprocessed_data['Resigned']
+
+      self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
     except Exception as e:
       print(e)
     
@@ -48,7 +48,7 @@ class ResignationPrediction():
   def train(self):
     print("[INFO] : Training Started")
     self.rf_classifier = RandomForestClassifier(n_estimators=100, random_state=793,min_samples_split=5)
-    self.rf_classifier.fit(self.X_train_resampled, self.y_train_resampled)
+    self.rf_classifier.fit(self.X_train, self.y_train)
     print("[INFO] : Training Completed")
 
 
@@ -59,8 +59,9 @@ class ResignationPrediction():
     print(f'Accuracy: {accuracy}')
     print(classification_report(self.y_test, y_pred))
     print("[INFO] : Saving Prediction Results -> results.xlsx")
-    self.X_test= self.X_test.reset_index()
-    self.predictions = pd.concat([pd.DataFrame(self.X_test),pd.DataFrame(y_pred)],axis=1)
+    self.final_data = self.X_test
+    self.final_data['Target_Resigned'] = self.y_test
+    self.final_data['Predicted_Resigned'] = y_pred
     #self.predictions.to_excel("results.xlsx")
     print("[INFO] : SAVED TO -> results.xlsx")
 
