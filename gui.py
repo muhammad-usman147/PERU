@@ -8,6 +8,9 @@ from resignationprediction import ResignationPrediction
 import cv2
 from popup import popup_window
 
+from tkinter import ttk
+import tkinter as tk
+
 #customtkinter.set_appearance_mode('dark')
 root = customtkinter.CTk()
 root.geometry("1080x550")
@@ -40,6 +43,23 @@ def execute():
 
 def Predictions():
     rp_obj.predict()
+
+def VisualizePossibleResignations():
+    popup = tk.Tk()
+    popup.title("All Possible Resignations")
+
+    tree = ttk.Treeview(popup)
+    possible_resignations = rp_obj.predictions[rp_obj.predictions[0]=='Yes']
+    tree['columns'] = list(possible_resignations)
+
+    for column in possible_resignations:
+        tree.heading(column=column,text=str(column))
+        tree.column(column,width=80)
+    for index, row in possible_resignations.iterrows():
+        tree.insert("","end",values = tuple(row))
+    tree.pack()
+    popup.mainloop()
+
 
 
 
@@ -107,7 +127,7 @@ predict_button = customtkinter.CTkButton(master=inner_frame, text='HU-05: Predic
 predict_button.grid(row=5,column=0,columnspan=2,pady=12,padx=10,sticky='ew')
 
 #HU-06: Visualize possible regisnation of employees from there table
-vis_resig_emp = customtkinter.CTkButton(master=inner_frame,text='HU-06: Show Possible \n Resignations',command='#',
+vis_resig_emp = customtkinter.CTkButton(master=inner_frame,text='HU-06: Show Possible \n Resignations',command=VisualizePossibleResignations,
                                         fg_color='Orange',font=button_font2,text_color='Green')
 vis_resig_emp.grid(row=1,column=2,columnspan=1,pady=12,padx=5,sticky='ew',)
 vis_resig_emp.bind("<Enter>",on_hover)

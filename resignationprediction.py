@@ -60,6 +60,12 @@ class ResignationPrediction():
     print(classification_report(self.y_test, y_pred))
     print("[INFO] : Saving Prediction Results -> results.xlsx")
     self.X_test= self.X_test.reset_index()
-    pd.concat([pd.DataFrame(self.X_test),pd.DataFrame(y_pred)],axis=1).to_excel("results.xlsx")
+    self.predictions = pd.concat([pd.DataFrame(self.X_test),pd.DataFrame(y_pred)],axis=1)
+    #self.predictions.to_excel("results.xlsx")
+    print("[INFO] : SAVED TO -> results.xlsx")
+
+
+def DisplayGraph():
+  pass 
 
 

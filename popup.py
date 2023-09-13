@@ -25,4 +25,3 @@ def popup_window():
     # Add content to the popup window
     customtkinter.CTkLabel(popup_window, text="This is a popup window").pack(pady=20, padx=20 )
     customtkinter.CTkButton(popup_window, text="Close Popup", command=popup_window.destroy).pack()
-
