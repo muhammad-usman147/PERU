@@ -87,18 +87,44 @@ def AllPossibleBarCharts():
             plt.ylabel(f'{col} count')
             plt.show()
 
-def AllPossiblePieCharts():
+def AllPossibleStackBarCharts():
     resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
     for col in resignation_data.columns:
         print(col,len(resignation_data[col].unique()))
         if len(resignation_data[col].unique()) < 5:
-            plt.pie(list(resignation_data[col].value_counts().values),
-                    labels= [str(i) for i in list(resignation_data[col].value_counts().index)],
-                    )
+            plt.bar([str(i) for i in list(resignation_data[col].value_counts().index)],
+                    list(resignation_data[col].value_counts().values))
             plt.xlabel(f'{col}')
             plt.ylabel(f'{col} count')
             plt.show()
-            
+
+
+def AllPossiblePieCharts():
+    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
+    for col in resignation_data.columns:
+        print(col,len(resignation_data[col].unique()))
+        
+        plt.pie(list(resignation_data[col].value_counts().values),
+                    labels= [str(i) for i in list(resignation_data[col].value_counts().index)],
+                    )
+        plt.xlabel(f'{col}')
+        plt.ylabel(f'{col} count')
+        plt.show()
+
+def AllPossibleLineCharts():
+    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
+    for col in resignation_data.columns:
+        print(col,len(resignation_data[col].unique()))
+        
+        plt.plot([str(i) for i in list(resignation_data[col].value_counts().index)],
+                    list(resignation_data[col].value_counts().values))
+        plt.xlabel(f'{col}')
+        plt.ylabel(f'{col} count')
+        plt.show()
+
+def DisplayVariables():
+    pass 
+
 def Ammend_data():
     file_path = entry3.get()
     username = entry1.get()
@@ -237,13 +263,29 @@ vis_resig_emp11.grid(row=4,column=3,columnspan=1,pady=5,padx=5,sticky='ew',)
 vis_resig_emp11.bind("<Enter>",on_hover11)
 vis_resig_emp11.bind("<Leave>",on_leave11)
 
+
+
+
+#HU-13 Pie  Charts
+
+def on_hover13(event):
+    vis_resig_emp13.configure(text_color='LightBlue',fg_color='Green',bg_color='Green')
+def on_leave13(event):
+    vis_resig_emp13.configure(text_color='Green',fg_color='Orange',bg_color='Orange')
+
+vis_resig_emp13 = customtkinter.CTkButton(master=inner_frame,text='HU-11: Show Line Chart',command=AllPossibleLineCharts,
+                                        fg_color='Orange',font=button_font2,text_color='Green')
+vis_resig_emp13.grid(row=5,column=3,columnspan=1,pady=5,padx=5,sticky='ew',)
+vis_resig_emp13.bind("<Enter>",on_hover13)
+vis_resig_emp13.bind("<Leave>",on_leave13)
+
 #HU-14 Display Variables
 def on_hover6(event):
     vis_resig_emp6.configure(text_color='LightBlue',fg_color='Green',bg_color='Green')
 def on_leave6(event):
     vis_resig_emp6.configure(text_color='Green',fg_color='Orange',bg_color='Orange')
 
-vis_resig_emp6 = customtkinter.CTkButton(master=inner_frame,text='HU-14: Display Variables',command='#',
+vis_resig_emp6 = customtkinter.CTkButton(master=inner_frame,text='HU-14: Display Variables',command=DisplayVariables,
                                         fg_color='Orange',font=button_font2,text_color='Green')
 vis_resig_emp6.grid(row=4,column=2,columnspan=1,pady=5,padx=5,sticky='ew',)
 vis_resig_emp6.bind("<Enter>",on_hover6)
