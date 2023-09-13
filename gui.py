@@ -7,10 +7,10 @@ from tkinter import DISABLED
 from resignationprediction import ResignationPrediction
 import cv2
 from popup import popup_window
-
+import matplotlib.pyplot as plt
 from tkinter import ttk
 import tkinter as tk
-
+import pandas as pd 
 #customtkinter.set_appearance_mode('dark')
 root = customtkinter.CTk()
 root.geometry("1080x550")
@@ -49,7 +49,7 @@ def VisualizePossibleResignations():
     popup.title("All Possible Resignations")
 
     tree = ttk.Treeview(popup)
-    possible_resignations = rp_obj.predictions[rp_obj.predictions[0]=='Yes']
+    possible_resignations = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned']==1]
     tree['columns'] = list(possible_resignations)
 
     for column in possible_resignations:
@@ -60,10 +60,45 @@ def VisualizePossibleResignations():
     tree.pack()
     popup.mainloop()
 
+def VoluntaryResignation():
+    
+    print(rp_obj.final_data.columns)
+    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
 
+    #Count the number of resignations
+    resignation_count = resignation_data.shape[0]
 
+    # Create a bar chart
+    plt.bar(['Employees Resigned', 'Employees Retained'], [resignation_count, rp_obj.final_data.shape[0] - resignation_count])
+    plt.xlabel('Employee Status')
+    plt.ylabel('Number of Employees')
+    plt.title('Employees with Possible Resignation')
+    plt.show()
 
+    
+def AllPossibleBarCharts():
+    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
+    for col in resignation_data.columns:
+        print(col,len(resignation_data[col].unique()))
+        if len(resignation_data[col].unique()) < 5:
+            plt.bar([str(i) for i in list(resignation_data[col].value_counts().index)],
+                    list(resignation_data[col].value_counts().values))
+            plt.xlabel(f'{col}')
+            plt.ylabel(f'{col} count')
+            plt.show()
 
+def AllPossiblePieCharts():
+    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
+    for col in resignation_data.columns:
+        print(col,len(resignation_data[col].unique()))
+        if len(resignation_data[col].unique()) < 5:
+            plt.pie(list(resignation_data[col].value_counts().values),
+                    labels= [str(i) for i in list(resignation_data[col].value_counts().index)],
+                    )
+            plt.xlabel(f'{col}')
+            plt.ylabel(f'{col} count')
+            plt.show()
+            
 def Ammend_data():
     file_path = entry3.get()
     username = entry1.get()
@@ -141,7 +176,7 @@ def on_hover1(event):
 def on_leave1(event):
     vis_resig_emp2.configure(text_color='Green',fg_color='Orange',bg_color='Orange')
 
-vis_resig_emp2 = customtkinter.CTkButton(master=inner_frame,text='HU-07: Show Voluntary \n Resignations',command='#',
+vis_resig_emp2 = customtkinter.CTkButton(master=inner_frame,text='HU-07: Show Voluntary \n Resignations',command=VoluntaryResignation,
                                         fg_color='Orange',font=button_font2,text_color='Green')
 vis_resig_emp2.grid(row=2,column=2,columnspan=1,pady=5,padx=5,sticky='ew',)
 
@@ -178,17 +213,30 @@ vis_resig_emp4.grid(row=2,column=3,columnspan=1,pady=5,padx=5,sticky='ew',)
 vis_resig_emp4.bind("<Enter>",on_hover4)
 vis_resig_emp4.bind("<Leave>",on_leave4)
 
-#HU-10 - HU - 13 Display Charts
+#HU-10 Bar Charts
 def on_hover5(event):
     vis_resig_emp5.configure(text_color='LightBlue',fg_color='Green',bg_color='Green')
 def on_leave5(event):
     vis_resig_emp5.configure(text_color='Green',fg_color='Orange',bg_color='Orange')
 
-vis_resig_emp5 = customtkinter.CTkButton(master=inner_frame,text='HU-1013: Show Charts',command='#',
+vis_resig_emp5 = customtkinter.CTkButton(master=inner_frame,text='HU-10: Show Charts',command=AllPossibleBarCharts,
                                         fg_color='Orange',font=button_font2,text_color='Green')
 vis_resig_emp5.grid(row=3,column=2,columnspan=1,pady=5,padx=5,sticky='ew',)
 vis_resig_emp5.bind("<Enter>",on_hover5)
 vis_resig_emp5.bind("<Leave>",on_leave5)
+#HU-11 Pie  Charts
+
+def on_hover11(event):
+    vis_resig_emp11.configure(text_color='LightBlue',fg_color='Green',bg_color='Green')
+def on_leave11(event):
+    vis_resig_emp11.configure(text_color='Green',fg_color='Orange',bg_color='Orange')
+
+vis_resig_emp11 = customtkinter.CTkButton(master=inner_frame,text='HU-11: Show Pie Chart',command=AllPossiblePieCharts,
+                                        fg_color='Orange',font=button_font2,text_color='Green')
+vis_resig_emp11.grid(row=4,column=3,columnspan=1,pady=5,padx=5,sticky='ew',)
+vis_resig_emp11.bind("<Enter>",on_hover11)
+vis_resig_emp11.bind("<Leave>",on_leave11)
+
 #HU-14 Display Variables
 def on_hover6(event):
     vis_resig_emp6.configure(text_color='LightBlue',fg_color='Green',bg_color='Green')
