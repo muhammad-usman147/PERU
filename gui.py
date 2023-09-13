@@ -4,15 +4,19 @@ import subprocess
 import tkinter.font as tkfont
 import requests 
 from tkinter import DISABLED
+from resignationprediction import ResignationPrediction
 import cv2
-
+from popup import popup_window
 
 #customtkinter.set_appearance_mode('dark')
 root = customtkinter.CTk()
 root.geometry("1080x550")
 
-
-
+rp_obj = ResignationPrediction()
+def open_popup():
+    popup_window()
+popup_button = customtkinter.CTkButton(root, text="Open Popup", command=open_popup)
+popup_button.pack()
 def browse_file():
     file_path = filedialog.askopenfilename()
     if not file_path.lower().endswith(('.xls','.xlsx')):
@@ -25,15 +29,19 @@ def browse_file():
 
 def execute():
     file_path = entry3.get()
-    username = entry1.get()
-    password = entry2.get()
+    #username = entry1.get()
+    #password = entry2.get()
     
     entry3.delete(0, 'end')
     print("Reading From:", file_path)
     # Call the sample function from the dynamic module
-    ret = Automate(file_path, username, password)
-    if ret == False:
-        messagebox.showerror("Error","Something went wrong")
+    rp_obj.preprocess(file_path)
+    rp_obj.train()
+
+def Predictions():
+    rp_obj.predict()
+
+
 
 
 def Ammend_data():
@@ -53,6 +61,9 @@ def on_hover(event):
     vis_resig_emp.configure(text_color='LightBlue',fg_color='Green',bg_color='Green')
 def on_leave(event):
     vis_resig_emp.configure(text_color='Green',fg_color='Orange',bg_color='Orange')
+
+
+
 
 
 frame = customtkinter.CTkFrame(master=root,width=2000)
@@ -91,7 +102,7 @@ train_button.grid(row=4, column=0, columnspan=2, pady=12, padx=10, sticky="ew")
 
 
 #HU-05 : System Predictions
-predict_button = customtkinter.CTkButton(master=inner_frame, text='HU-05: Predict', command = '#',
+predict_button = customtkinter.CTkButton(master=inner_frame, text='HU-05: Predict', command = Predictions,
                                         bg_color='#3d3db8',fg_color='#3d3db8', font=button_font)
 predict_button.grid(row=5,column=0,columnspan=2,pady=12,padx=10,sticky='ew')
 
