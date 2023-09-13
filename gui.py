@@ -123,7 +123,23 @@ def AllPossibleLineCharts():
         plt.show()
 
 def DisplayVariables():
-    pass 
+    
+    popup = tk.Toplevel(root)
+    popup.title("All Variables")
+
+    def ShowContent(column_name):
+        unique_values = rp_obj.final_data[column_name].unique()
+        content = tk.Toplevel(root)
+        label = tk.Label(content, text=f"{unique_values}").pack()
+        content.mainloop()
+
+    # Create multiple buttons in the popup
+    for col in rp_obj.final_data.columns:
+        tk.Button(popup, text=f"Click to View: {col}",
+                    command= lambda col=col: ShowContent(col)).pack()
+    popup.mainloop()
+
+    
 
 def Ammend_data():
     file_path = entry3.get()
