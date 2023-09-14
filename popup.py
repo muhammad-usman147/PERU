@@ -62,7 +62,7 @@ def popup_window(rp_obj):
                                     fg_color='Green',bg_color='Green',text_color='White')
     resign_theme.grid(row=1,column=3,columnspan=1,padx=5,sticky='ew',)
 
-    gender_search= customtkinter.CTkLabel(master=frame2, text="Resigned (Yes/No)", text_color='Green', font=("Arial",16),)
+    gender_search= customtkinter.CTkLabel(master=frame2, text="Gender", text_color='Green', font=("Arial",16),)
     gender_search.grid(row=1, column=4, columnspan=1, pady=20, padx=10)
     gender_theme = customtkinter.CTkComboBox(master=frame2, values = [str(i) for i in rp_obj.final_data['Gender'].unique()],command=SearchFilterByGender,
                                     fg_color='Green',bg_color='Green',text_color='White')

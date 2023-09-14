@@ -9,15 +9,34 @@ import random
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 import plotly.offline as pyo
+import sqlite3
+
 
 class ResignationPrediction():
   def __init__(self):
-    pass 
-  def preprocess(self,filename):
+    self.conn = sqlite3.connect('Employees.db') 
+    self.cursor = self.conn.cursor()
+  def UploadSheetToDB(self,filename):
+    
+    
+    self.data = pd.read_excel(filename)
+    for index,row in self.data.iterrows():
+      self.cursor.execute("INSERT INTO resignations (Age, Department, Education, EducationField,EmployeeNumber,GENDER,JobLevel, JobRole, MaritalStatus, FECHA_DE_INGRESO, FECHA_DE_CESE, MonthlyIncome, Ovetime, EnvironmentSatisfaction, JobSatisfaction,PerformanceRating,WorkLifeBalance ) VALUES (?, ?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?,?,? );",\
+                            (int(row['Age']),row['Department'],int(row['Education']),row['EducationField'],int(row['EmployeeNumber']), 
+                            row['Gender'],int(row['JobLevel']),row['JobRole'],row['MaritalStatus'],row['FECHA_DE_INGRESO'],str(row['FECHA_DE_CESE']) ,float(row['MonthlyIncome']),row['Ovetime'],int(row['EnvironmentSatisfaction']),int(row['JobSatisfaction']),int(row['PerformanceRating']),int(row['WorkLifeBalance'])))
+      
+    self.conn.commit()
+    print("[INFO] : All Data Added")
+    
+    self.cursor.close()
+  def preprocess(self,filename=None):
     try:
       self.label_encoders = {}
-      print(f"[INFO] : Reading {filename}")
-      self.data = pd.read_excel(filename)
+      if filename == None:
+        self.data = pd.read_sql_query("SELECT * from resignations",self.conn)
+      else:
+        print(f"[INFO] : Reading {filename}")
+        self.data = pd.read_excel(filename)
       self.temp_data = self.data.copy()
       self.data['Ovetime'].fillna('No', inplace=True)
       self.data['Ovetime'] = self.data['Ovetime'].replace('Si', 'Yes')

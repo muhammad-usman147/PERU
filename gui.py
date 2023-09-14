@@ -43,6 +43,18 @@ def execute():
     rp_obj.preprocess(file_path)
     rp_obj.train()
 
+def TrainFromDB():
+    rp_obj.preprocess(None)
+    rp_obj.train()
+def UploadToDataBase():
+    file_path = entry3.get()
+    #username = entry1.get()
+    #password = entry2.get()
+    
+    entry3.delete(0, 'end')
+    print("Reading From:", file_path)
+    # Call the sample function from the dynamic module
+    rp_obj.UploadSheetToDB(file_path)
 def Predictions():
     rp_obj.predict()
 
@@ -211,17 +223,7 @@ def DownloadAllGraphs():
     AllPossibleBarCharts(save=True)
     plt.close()
     print("[INFO] : All Graphs Saved")
-def Ammend_data():
-    file_path = entry3.get()
-    username = entry1.get()
-    password = entry2.get()
-    
-    entry3.delete(0, 'end')
-    print("Reading From:", file_path)
-    # Call the sample function from the dynamic module
-    ret = Ammend_Fields(file_path, username, password)
-    if ret == False:
-        messagebox.showerror("Error","Something went wrong")
+
 
 def DownloadPdfPredictions():
     print("[INFO] : Saving Predictions")
@@ -284,7 +286,7 @@ def Operations():
     Operations_window(rp_obj)
 op_button = customtkinter.CTkButton(inner_frame, text="Operations", bg_color='Green', fg_color='Green',command=Operations)
 op_button.grid(row=0,column=3)
-label = customtkinter.CTkLabel(master=inner_frame, text="Peru Work", text_color='Green', font=("Arial", 60),)
+label = customtkinter.CTkLabel(master=inner_frame, text="Employees Resignation \n Predictions", text_color='Green', font=("Arial", 40),)
 label.grid(row=0, column=0, pady=20, padx=10)
 
 entry3_variable = customtkinter.StringVar()
@@ -298,11 +300,11 @@ browse_button = customtkinter.CTkButton(master=inner_frame, text="Browse", comma
                                         bg_color='Green', fg_color='Green', font=button_font)
 browse_button.grid(row=1, column=1, pady=12, padx=10,sticky='ew')
 
-entry1 = customtkinter.CTkEntry(master=inner_frame, placeholder_text="Textbox1")
+entry1 = customtkinter.CTkButton(master=inner_frame, text="Add Data To DB", command=UploadToDataBase, bg_color='#0747ad', fg_color='#0747ad',)
 entry1.grid(row=2, column=0, pady=12, padx=10, sticky="ew")
 
-entry2 = customtkinter.CTkEntry(master=inner_frame, placeholder_text="Textbox2")
-entry2.grid(row=3, column=0, pady=12, padx=10, sticky="ew")
+entry2 = customtkinter.CTkButton(master=inner_frame, text="Train From DB",command = TrainFromDB,bg_color='#0747ad', fg_color='#0747ad',)
+entry2.grid(row=3, column=0, pady=12, padx=10,  sticky="ew")
 
 #HU-04 : System to learn from the imported database
 train_button = customtkinter.CTkButton(master=inner_frame, text="HU-04: Start Training", command=execute,

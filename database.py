@@ -20,7 +20,7 @@ class DATABASE():
                     Education INTEGER,
                     EducationField TEXT,
                     EmployeeNumber INTEGER,
-                    GENDER TEXT,
+                    Gender TEXT,
                     JobLevel INTEGER,
                     JobRole TEXT,
                     MaritalStatus TEXT,
@@ -81,6 +81,7 @@ def Insert():
                             ))
     insert_window = customtkinter.CTk()
     insert_window.geometry("1400x400")
+    insert_window.title("Insert Data")
     frame3 = customtkinter.CTkFrame(master=insert_window,width=2000)
     frame3.pack(pady=20, padx=20 ,fill='both', expand=True)
     resign_search= customtkinter.CTkLabel(master=frame3, text="Insert Worker", text_color='Red', font=("Arial",16),)
@@ -162,9 +163,10 @@ def DeleteWorker():
         db.DeleteQuery(id = worker_id.get())
     delete_window = customtkinter.CTk()
     delete_window.geometry("900x200")
+    delete_window.title("Delete Worker")
     frame4 = customtkinter.CTkFrame(master=delete_window,width=2000)
     frame4.pack(pady=20, padx=20 ,fill='both', expand=True)
-    worker_id = customtkinter.CTkEntry(master=frame4, width=300,placeholder_text="Insert PerformanceRating(INT)")
+    worker_id = customtkinter.CTkEntry(master=frame4, width=300,placeholder_text="Insert ID")
     worker_id.grid(row=1, column=0, pady=12, padx=10)
     delete_button = customtkinter.CTkButton(master=frame4, text="Delete", command=Delete,
                                         bg_color='Red', fg_color='Red',)
@@ -177,6 +179,7 @@ def DeletedTable():
         db.DeleteTable()
     delete_window = customtkinter.CTk()
     delete_window.geometry("900x200")
+    delete_window.title("Delete Table")
     frame4 = customtkinter.CTkFrame(master=delete_window,width=2000)
     frame4.pack(pady=20, padx=20 ,fill='both', expand=True)
     worker_id = customtkinter.CTkLabel(master=frame4, width=300,text="Are Your Sure?")
@@ -193,6 +196,7 @@ def DeletedTable():
 
 def DeletedColumn(x):
     rp_obj = x
+    
     def DropColumn():
         rp_obj.temp_data.drop(columns = [del_col.get()],inplace=True)
         print(f"[INFO] : Column {del_col.get()} Dropped")
@@ -210,6 +214,7 @@ def DeletedColumn(x):
         tree_pop.mainloop()
     delete_col_window = customtkinter.CTk()
     delete_col_window.geometry("900x200")
+    delete_col_window.title("Delete Column")
     frame5 = customtkinter.CTkFrame(master=delete_col_window,width=2000)
     frame5.pack(pady=20, padx=20 ,fill='both', expand=True)
     worker_id = customtkinter.CTkLabel(master=frame5, width=300,text="Select Column To Drop")
