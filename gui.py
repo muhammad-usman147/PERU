@@ -11,14 +11,18 @@ import matplotlib.pyplot as plt
 from tkinter import ttk
 import tkinter as tk
 import pandas as pd 
+import os 
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib import colors
 #customtkinter.set_appearance_mode('dark')
 root = customtkinter.CTk()
 root.geometry("1080x550")
 
 rp_obj = ResignationPrediction()
 def open_popup():
-    popup_window()
-popup_button = customtkinter.CTkButton(root, text="Open Popup", command=open_popup)
+    popup_window(rp_obj)
+popup_button = customtkinter.CTkButton(root, text="Search Filter", command=open_popup)
 popup_button.pack()
 def browse_file():
     file_path = filedialog.askopenfilename()
@@ -60,7 +64,7 @@ def VisualizePossibleResignations():
     tree.pack()
     popup.mainloop()
 
-def VoluntaryResignation():
+def VoluntaryResignation(save=False):
     
     print(rp_obj.final_data.columns)
     resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
@@ -73,54 +77,71 @@ def VoluntaryResignation():
     plt.xlabel('Employee Status')
     plt.ylabel('Number of Employees')
     plt.title('Employees with Possible Resignation')
-    plt.show()
-
+    if save == True:
+        plt.savefig("charts/VoluntaryResignationChart.png")
+    else:
+        plt.show()
+    plt.clf()
     
-def AllPossibleBarCharts():
+def AllPossibleBarCharts(save=False):
     resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
-    for col in resignation_data.columns:
-        print(col,len(resignation_data[col].unique()))
+    for index,col in enumerate(resignation_data.columns):
         if len(resignation_data[col].unique()) < 5:
             plt.bar([str(i) for i in list(resignation_data[col].value_counts().index)],
                     list(resignation_data[col].value_counts().values))
             plt.xlabel(f'{col}')
             plt.ylabel(f'{col} count')
-            plt.show()
+            if save == True:
+                plt.savefig(f"charts/barchart{index}.png")
+            else:
+                plt.show()
+            plt.clf()
 
-def AllPossibleStackBarCharts():
+def AllPossibleStackBarCharts(save=False):
     resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
-    for col in resignation_data.columns:
-        print(col,len(resignation_data[col].unique()))
+    for index,col in enumerate(resignation_data.columns):
         if len(resignation_data[col].unique()) < 5:
             plt.bar([str(i) for i in list(resignation_data[col].value_counts().index)],
                     list(resignation_data[col].value_counts().values))
             plt.xlabel(f'{col}')
             plt.ylabel(f'{col} count')
-            plt.show()
+            if save == True:
+                plt.savefig(f"charts/stackedchart{index}.png")
+            else:
+                plt.show()
+            plt.clf()
 
-
-def AllPossiblePieCharts():
+def AllPossiblePieCharts(save=False):
     resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
-    for col in resignation_data.columns:
-        print(col,len(resignation_data[col].unique()))
+    for index,col in enumerate(resignation_data.columns):
         
         plt.pie(list(resignation_data[col].value_counts().values),
                     labels= [str(i) for i in list(resignation_data[col].value_counts().index)],
                     )
         plt.xlabel(f'{col}')
         plt.ylabel(f'{col} count')
-        plt.show()
-
-def AllPossibleLineCharts():
+        if save == True:
+            plt.savefig(f"charts/piechart{index}.png")
+        else:
+            plt.show()
+        plt.clf()
+        
+def AllPossibleLineCharts(save=False):
     resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
-    for col in resignation_data.columns:
-        print(col,len(resignation_data[col].unique()))
+    for index,col in enumerate(resignation_data.columns):
         
         plt.plot([str(i) for i in list(resignation_data[col].value_counts().index)],
                     list(resignation_data[col].value_counts().values))
         plt.xlabel(f'{col}')
         plt.ylabel(f'{col} count')
-        plt.show()
+        
+        if save == True:
+            plt.savefig(f"charts/linechart{index}.png")
+            
+        else:
+            plt.show()
+        plt.clf()
+        
 
 def DisplayVariables():
     
@@ -139,8 +160,19 @@ def DisplayVariables():
                     command= lambda col=col: ShowContent(col)).pack()
     popup.mainloop()
 
-    
-
+def DownloadAllGraphs():
+    if os.path.exists("charts"):
+        pass 
+    else:
+        os.mkdir('charts')
+    print("[INFO] : Saving All Graphs to charts/")
+    #AllPossibleStackBarCharts(save=True)
+    AllPossiblePieCharts(save=True)
+    AllPossibleLineCharts(save=True)
+    VoluntaryResignation(save=True)
+    AllPossibleBarCharts(save=True)
+    plt.close()
+    print("[INFO] : All Graphs Saved")
 def Ammend_data():
     file_path = entry3.get()
     username = entry1.get()
@@ -152,6 +184,38 @@ def Ammend_data():
     ret = Ammend_Fields(file_path, username, password)
     if ret == False:
         messagebox.showerror("Error","Something went wrong")
+
+def DownloadPdfPredictions():
+    print("[INFO] : Saving Predictions")
+    pdf = SimpleDocTemplate("predictions_table.pdf", pagesize=letter)
+    table_data = []
+    for i, row in rp_obj.final_data.iterrows():
+        table_data.append(list(row))
+
+    table = Table(table_data)
+    table_style = TableStyle([
+    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+    ('FONTSIZE', (0, 0), (-1, 0), 14),
+    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+    ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+    ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
+    ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+    ('FONTSIZE', (0, 1), (-1, -1), 12),
+    ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+    ])
+
+    table.setStyle(table_style)
+    pdf_table = []
+    pdf_table.append(table)
+
+    pdf.build(pdf_table)
+    print("[INFO] : Predictions Saved As predictions_table.pdf")
+def DownloadExcelPredictions():
+    rp_obj.final_data.to_excel("predictions.xlsx",index=False)
 
 
 def on_hover(event):
@@ -247,7 +311,7 @@ def on_hover4(event):
 def on_leave4(event):
     vis_resig_emp4.configure(text_color='Green',fg_color='Orange',bg_color='Orange')
 
-vis_resig_emp4 = customtkinter.CTkButton(master=inner_frame,text='HU-09: Download \n Predictions(PDF)',command='#',
+vis_resig_emp4 = customtkinter.CTkButton(master=inner_frame,text='HU-09: Download \n Predictions(PDF)',command=DownloadPdfPredictions,
                                         fg_color='Orange',font=button_font2,text_color='Green')
 vis_resig_emp4.grid(row=2,column=3,columnspan=1,pady=5,padx=5,sticky='ew',)
 
@@ -313,7 +377,7 @@ def on_hover7(event):
 def on_leave7(event):
     vis_resig_emp7.configure(text_color='Green',fg_color='Orange',bg_color='Orange')
 
-vis_resig_emp7 = customtkinter.CTkButton(master=inner_frame,text='HU-15: Download Graphs',command='#',
+vis_resig_emp7 = customtkinter.CTkButton(master=inner_frame,text='HU-15: Download Graphs',command=DownloadAllGraphs,
                                         fg_color='Orange',font=button_font2,text_color='Green')
 vis_resig_emp7.grid(row=3,column=3,columnspan=1,pady=5,padx=5,sticky='ew',)
 vis_resig_emp7.bind("<Enter>",on_hover7)
@@ -327,7 +391,7 @@ def on_hover8(event):
 def on_leave8(event):
     vis_resig_emp8.configure(text_color='Green',fg_color='Orange',bg_color='Orange')
 
-vis_resig_emp8 = customtkinter.CTkButton(master=inner_frame,text='HU-15: Download Prediction \n Table (excel)',command='#',
+vis_resig_emp8 = customtkinter.CTkButton(master=inner_frame,text='HU-15: Download Prediction \n Table (excel)',command=DownloadExcelPredictions,
                                         fg_color='Orange',font=button_font2,text_color='Green')
 vis_resig_emp8.grid(row=5,column=2,columnspan=1,pady=5,padx=5,sticky='ew',)
 vis_resig_emp8.bind("<Enter>",on_hover8)
@@ -338,7 +402,7 @@ vis_resig_emp8.bind("<Leave>",on_leave8)
 
 #HU-17 Download Table
 
-vis_resig_emp9 = customtkinter.CTkButton(master=inner_frame,text='HU-17: Exit',command='#',
+vis_resig_emp9 = customtkinter.CTkButton(master=inner_frame,text='HU-17: Exit',command=lambda : root.destroy(),
                                         fg_color='#ed1f37',bg_color='#ed1f37',font=button_font2,text_color='White')
 vis_resig_emp9.grid(row=6,column=3,columnspan=1,padx=5,sticky='ew',)
 
