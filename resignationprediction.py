@@ -6,6 +6,9 @@ from sklearn.metrics import accuracy_score
 from imblearn.over_sampling import SMOTE
 from sklearn.metrics import classification_report
 import random 
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
+import plotly.offline as pyo
 
 class ResignationPrediction():
   def __init__(self):
@@ -15,6 +18,7 @@ class ResignationPrediction():
       self.label_encoders = {}
       print(f"[INFO] : Reading {filename}")
       self.data = pd.read_excel(filename)
+      self.temp_data = self.data.copy()
       self.data['Ovetime'].fillna('No', inplace=True)
       self.data['Ovetime'] = self.data['Ovetime'].replace('Si', 'Yes')
       self.data['Ovetime'] = self.data['Ovetime'].replace(1000, 'No')
@@ -76,7 +80,39 @@ class ResignationPrediction():
     print("[INFO] : SAVED TO -> results.xlsx")
 
 
-def DisplayGraph():
-  pass 
+  def ClassificationReport(self):
+    y_pred = self.rf_classifier.predict(self.X_test) 
+    data = []
+    report = classification_report(self.y_test, y_pred,output_dict=True)
+    for class_name, metrics in report.items():
+        if class_name not in ["accuracy", "macro avg", "weighted avg"]:
+            row = [class_name, metrics["precision"], metrics["recall"], metrics["f1-score"], metrics["support"]]
+            data.append(row)
+
+    # Create a subplot for the table
+    fig = make_subplots(rows=1, cols=1)
+    header = ["Class", "Precision", "Recall", "F1-Score", "Support"]
+
+    # Create a trace for the table
+    trace = go.Table(
+        header=dict(values=header, fill=dict(color="#C2D4FF"), align="left"),
+        cells=dict(values=list(zip(*data)), fill=dict(color="#F5F8FF"), align="left")
+    )
+
+    # Add the table trace to the subplot
+    fig.add_trace(trace)
+
+    # Update layout options for the table
+    table_layout = go.Layout(
+        autosize=True,
+        margin=dict(l=0, r=0, t=0, b=0)
+    )
+
+    fig.update_layout()
+
+    # Show the table
+    pyo.plot(fig)
+    pyo.iplot(fig, show_link=False)
+
 
 

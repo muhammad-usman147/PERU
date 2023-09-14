@@ -15,15 +15,13 @@ import os
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
+from database import Operations_window
 #customtkinter.set_appearance_mode('dark')
 root = customtkinter.CTk()
-root.geometry("1080x550")
+root.geometry("1350x550")
 
 rp_obj = ResignationPrediction()
-def open_popup():
-    popup_window(rp_obj)
-popup_button = customtkinter.CTkButton(root, text="Search Filter", command=open_popup)
-popup_button.pack()
+
 def browse_file():
     file_path = filedialog.askopenfilename()
     if not file_path.lower().endswith(('.xls','.xlsx')):
@@ -67,7 +65,7 @@ def VisualizePossibleResignations():
 def VoluntaryResignation(save=False):
     
     print(rp_obj.final_data.columns)
-    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
+    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 'Yes']
 
     #Count the number of resignations
     resignation_count = resignation_data.shape[0]
@@ -79,67 +77,107 @@ def VoluntaryResignation(save=False):
     plt.title('Employees with Possible Resignation')
     if save == True:
         plt.savefig("charts/VoluntaryResignationChart.png")
+        plt.clf()
     else:
         plt.show()
-    plt.clf()
+    
     
 def AllPossibleBarCharts(save=False):
-    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
+    
+    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 'Yes']
+    print(resignation_data.columns)
+    fig, axes = plt.subplots(3, 6, figsize=(15, 10))
+    axes = axes.flatten()
+
     for index,col in enumerate(resignation_data.columns):
         if len(resignation_data[col].unique()) < 5:
-            plt.bar([str(i) for i in list(resignation_data[col].value_counts().index)],
+            axes[index].barh([str(i) for i in list(resignation_data[col].value_counts().index)],
                     list(resignation_data[col].value_counts().values))
-            plt.xlabel(f'{col}')
-            plt.ylabel(f'{col} count')
-            if save == True:
-                plt.savefig(f"charts/barchart{index}.png")
-            else:
-                plt.show()
-            plt.clf()
+            axes[index].set_xlabel(f'{col}')
+            axes[index].set_ylabel(f'{col} count')
+
+        else:
+            fig.delaxes(axes[index])
+    if save == True:
+        plt.savefig(f"charts/BarCharts.png")
+    else:
+        plt.tight_layout()
+        plt.show()
+        plt.clf()
+    
 
 def AllPossibleStackBarCharts(save=False):
-    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
-    for index,col in enumerate(resignation_data.columns):
-        if len(resignation_data[col].unique()) < 5:
-            plt.bar([str(i) for i in list(resignation_data[col].value_counts().index)],
-                    list(resignation_data[col].value_counts().values))
-            plt.xlabel(f'{col}')
-            plt.ylabel(f'{col} count')
-            if save == True:
-                plt.savefig(f"charts/stackedchart{index}.png")
-            else:
-                plt.show()
-            plt.clf()
+    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == "Yes"].groupby('Gender').sum()
+    cols = resignation_data.columns
+    plt.bar(resignation_data.index,resignation_data[cols[0]].values,label=f'0')
+    
+    for index in range(1,len(cols)):
+        
+        plt.bar(resignation_data.index,resignation_data[cols[index]].values,
+                bottom=resignation_data[cols[index-1]].values,label=f'{index}')
+        plt.xlabel(f'{cols[index-1]}')
+        plt.ylabel(f'{cols[index-1]} count')
+        plt.show()
+    if save == True:
+        plt.savefig(f"charts/StackedCharts.png")
+    else:
+
+        plt.show()
+def AllPossibleStackBarCharts(save=False):
+    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == "Yes"]
+    resignation_data.drop(columns="EmployeeNumber",inplace=True)
+    resignation_data = resignation_data.groupby('Age').sum()
+    #resignation_data.set_index('Age', inplace=True)
+    ax = resignation_data.plot(kind='bar', stacked=True, figsize=(8, 6))
+    plt.title('Stacked Bar Chart')
+    plt.xlabel('Age')
+    plt.ylabel('Sum')
+
+    # Show the chart
+    plt.show()
+
+            
 
 def AllPossiblePieCharts(save=False):
-    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
+    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 'Yes']
+    fig, axes = plt.subplots(3, 6, figsize=(15, 10))
+    axes = axes.flatten()
     for index,col in enumerate(resignation_data.columns):
-        
-        plt.pie(list(resignation_data[col].value_counts().values),
-                    labels= [str(i) for i in list(resignation_data[col].value_counts().index)],
-                    )
-        plt.xlabel(f'{col}')
-        plt.ylabel(f'{col} count')
-        if save == True:
-            plt.savefig(f"charts/piechart{index}.png")
+        if len(resignation_data[col].unique()) < 5:
+            axes[index].pie(list(resignation_data[col].value_counts().values),
+                        labels= [str(i) for i in list(resignation_data[col].value_counts().index)],
+                        )
+            axes[index].set_title(f'Pie Chart {col}')
+
         else:
-            plt.show()
+            fig.delaxes(axes[index])
+    if save == True:
+        plt.savefig(f"charts/PieCharts.png")
+    else:
+        plt.tight_layout()
+        plt.show()
         plt.clf()
         
 def AllPossibleLineCharts(save=False):
-    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == 1]
+    resignation_data = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned'] == "Yes"]
+    fig, axes = plt.subplots(3, 6, figsize=(15, 10))
+    axes = axes.flatten()
     for index,col in enumerate(resignation_data.columns):
-        
-        plt.plot([str(i) for i in list(resignation_data[col].value_counts().index)],
-                    list(resignation_data[col].value_counts().values))
-        plt.xlabel(f'{col}')
-        plt.ylabel(f'{col} count')
-        
-        if save == True:
-            plt.savefig(f"charts/linechart{index}.png")
+        if len(resignation_data[col].unique()) < 5:
+            axes[index].plot([str(i) for i in list(resignation_data[col].value_counts().index)],
+                        list(resignation_data[col].value_counts().values))
+            axes[index].set_xlabel(f'{col}')
+            axes[index].set_ylabel(f'{col} count')
+            
+
             
         else:
-            plt.show()
+            fig.delaxes(axes[index])
+    if save == True:
+        plt.savefig(f"charts/LineCharts.png")
+    else:
+        plt.tight_layout()
+        plt.show()
         plt.clf()
         
 
@@ -229,26 +267,36 @@ def on_leave(event):
 
 frame = customtkinter.CTkFrame(master=root,width=2000)
 frame.pack(pady=20, padx=20 ,fill='both', expand=True)
+
+
+
 button_font = customtkinter.CTkFont(size=20)
 button_font2 = customtkinter.CTkFont(size=18,weight='bold')
 
 
 inner_frame = customtkinter.CTkFrame(master=frame)
 inner_frame.pack()
-
+def open_popup():
+    popup_window(rp_obj)
+popup_button = customtkinter.CTkButton(inner_frame, text="Search Filter", bg_color='Green', fg_color='Green',command=open_popup,)
+popup_button.grid(row=0,column=2)
+def Operations():
+    Operations_window(rp_obj)
+op_button = customtkinter.CTkButton(inner_frame, text="Operations", bg_color='Green', fg_color='Green',command=Operations)
+op_button.grid(row=0,column=3)
 label = customtkinter.CTkLabel(master=inner_frame, text="Peru Work", text_color='Green', font=("Arial", 60),)
-label.grid(row=0, column=0, columnspan=3, pady=20, padx=10)
+label.grid(row=0, column=0, pady=20, padx=10)
 
 entry3_variable = customtkinter.StringVar()
 entry3 = customtkinter.CTkEntry(master=inner_frame, placeholder_text="File Path", textvariable=entry3_variable)
 entry3.grid(row=1, column=0, pady=12, padx=10, sticky="ew")
 entry3.configure(width=500)  # Set desired width of the entry widget
 
-
+    
 #HU-02 : Importing the database into the system
 browse_button = customtkinter.CTkButton(master=inner_frame, text="Browse", command=browse_file,
                                         bg_color='Green', fg_color='Green', font=button_font)
-browse_button.grid(row=1, column=1, pady=12, padx=10)
+browse_button.grid(row=1, column=1, pady=12, padx=10,sticky='ew')
 
 entry1 = customtkinter.CTkEntry(master=inner_frame, placeholder_text="Textbox1")
 entry1.grid(row=2, column=0, pady=12, padx=10, sticky="ew")
@@ -296,7 +344,7 @@ def on_hover3(event):
 def on_leave3(event):
     vis_resig_emp3.configure(text_color='Green',fg_color='Orange',bg_color='Orange')
 
-vis_resig_emp3 = customtkinter.CTkButton(master=inner_frame,text='HU-08: Display Predictibility \n Meter',command='#',
+vis_resig_emp3 = customtkinter.CTkButton(master=inner_frame,text='HU-08: Display Predictibility \n Meter',command=rp_obj.ClassificationReport,
                                         fg_color='Orange',font=button_font2,text_color='Green')
 vis_resig_emp3.grid(row=1,column=3,columnspan=1,pady=5,padx=5,sticky='ew',)
 
@@ -405,6 +453,14 @@ vis_resig_emp8.bind("<Leave>",on_leave8)
 vis_resig_emp9 = customtkinter.CTkButton(master=inner_frame,text='HU-17: Exit',command=lambda : root.destroy(),
                                         fg_color='#ed1f37',bg_color='#ed1f37',font=button_font2,text_color='White')
 vis_resig_emp9.grid(row=6,column=3,columnspan=1,padx=5,sticky='ew',)
+
+
+#HU-13 Download Table
+
+vis_resig_emp9 = customtkinter.CTkButton(master=inner_frame,text='HU-17: Show Stacked Charts',command=AllPossibleStackBarCharts,
+                                        fg_color='Orange',font=button_font2,text_color='Green')
+vis_resig_emp9.grid(row=6,column=2,columnspan=1,padx=5,sticky='ew',)
+
 
 #HU-18 Change Theme
 def change_theme(event):
