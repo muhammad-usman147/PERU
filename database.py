@@ -3,6 +3,7 @@ import customtkinter
 import tkinter as tk
 from tkinter import ttk
 import pandas as pd
+from update import UpdateWorker
 # Create or connect to the SQLite database
 rp_obj = None
 class DATABASE():
@@ -45,6 +46,39 @@ class DATABASE():
                             values)
         self.conn.commit()
         print("[INFO]: Data Inserted Successfully")
+
+    def Update(self,values, ID):
+        update_query = """
+    UPDATE resignations
+    SET
+        Age = ?,
+        Department = ?,
+        Education = ?,
+        EducationField = ?,
+        EmployeeNumber = ?,
+        GENDER = ?,
+        JobLevel = ?,
+        JobRole = ?,
+        MaritalStatus = ?,
+        FECHA_DE_INGRESO = ?,
+        FECHA_DE_CESE = ?,
+        MonthlyIncome = ?,
+        Ovetime = ?,
+        EnvironmentSatisfaction = ?,
+        JobSatisfaction = ?,
+        PerformanceRating = ?,
+        WorkLifeBalance = ?
+    WHERE ID = ?
+"""
+        self.cursor.execute(update_query,values+(ID,))
+        self.conn.commit()
+        print("[INFO]: Data Updaed Successfully")
+
+
+
+
+
+
     def ShowTables(self):
         temp_df = pd.read_sql_query("SELECT * from resignations",self.conn)
         tree_pop = tk.Tk()
@@ -227,6 +261,22 @@ def DeletedColumn(x):
     delete_button_no.grid(row=1, column=2, pady=12, padx=10)
     delete_col_window.mainloop()
 
+def EditWorker():
+    def GetWorkerID():
+        ID = ed_worker_id.get()
+        UpdateWorker(ID,db)
+        
+    EditWorker_window = customtkinter.CTk()
+    EditWorker_window.geometry("900x200")
+    EditWorker_window.title("Edit Worker")
+    frame6 = customtkinter.CTkFrame(master=EditWorker_window,width=2000)
+    frame6.pack(pady=20, padx=20 ,fill='both', expand=True)
+    ed_worker_id = customtkinter.CTkEntry(master=frame6, width=300,placeholder_text="Enter Worker ID")
+    ed_worker_id.grid(row=1, column=0, pady=12, padx=10)
+    button_no = customtkinter.CTkButton(master=frame6, text="Select", command=GetWorkerID,
+                                        bg_color='Red', fg_color='Red',)
+    button_no.grid(row=1, column=2, pady=12, padx=10)
+    EditWorker_window.mainloop()
 def Operations_window(rp_obj):
     rp_obj = rp_obj
     popup_window = customtkinter.CTk()
@@ -241,12 +291,17 @@ def Operations_window(rp_obj):
     ShowData_button = customtkinter.CTkButton(master=frame2, text="Show Data", command=db.ShowTables,
                                         bg_color='Green', fg_color='Green',)
     ShowData_button.grid(row=2, column=5, pady=12, padx=10)
+
+    EditData_button = customtkinter.CTkButton(master=frame2, text="Edit Worker", command=EditWorker,
+                                        bg_color='Green', fg_color='Green',)
+    EditData_button.grid(row=2, column=6, pady=12, padx=10)
+
     Delete_button = customtkinter.CTkButton(master=frame2, text="Delete Column", command=lambda x = rp_obj:DeletedColumn(x),
                                         bg_color='Red', fg_color='Green',)
-    Delete_button.grid(row=2, column=6, pady=12, padx=10)
+    Delete_button.grid(row=2, column=7, pady=12, padx=10)
     Delete_Column = customtkinter.CTkButton(master=frame2, text="Delete Worker", command=DeleteWorker,
                                         bg_color='Red', fg_color='Green',)
-    Delete_Column.grid(row=2, column=7, pady=12, padx=10)
+    Delete_Column.grid(row=2, column=8, pady=12, padx=10)
     Delete_Table = customtkinter.CTkButton(master=frame2, text="Delete Table", command=DeletedTable,
                                         bg_color='Red', fg_color='Red',)
-    Delete_Table.grid(row=2, column=8, pady=12, padx=10)
+    Delete_Table.grid(row=2, column=9, pady=12, padx=10)
