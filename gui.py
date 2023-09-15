@@ -44,7 +44,7 @@ def execute():
     rp_obj.train()
 
 def TrainFromDB():
-    rp_obj.preprocess(None)
+    rp_obj.preprocess(None  )
     rp_obj.train()
 def UploadToDataBase():
     file_path = entry3.get()
@@ -63,7 +63,7 @@ def VisualizePossibleResignations():
     popup.title("All Possible Resignations")
 
     tree = ttk.Treeview(popup)
-    possible_resignations = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned']==1]
+    possible_resignations = rp_obj.final_data[rp_obj.final_data['Predicted_Resigned']=='Yes']
     tree['columns'] = list(possible_resignations)
 
     for column in possible_resignations:
