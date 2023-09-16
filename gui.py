@@ -256,6 +256,7 @@ def DownloadPdfPredictions():
     print("[INFO] : Predictions Saved As predictions_table.pdf")
 def DownloadExcelPredictions():
     rp_obj.final_data.to_excel("predictions.xlsx",index=False)
+    print("[INFO] : Data SAVED IN EXCEL (predictions.xlsx)")
 
 
 def on_hover(event):

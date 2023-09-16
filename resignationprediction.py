@@ -25,7 +25,7 @@ class ResignationPrediction():
                             (int(row['Age']),row['Department'],int(row['Education']),row['EducationField'],int(row['EmployeeNumber']), 
                             row['Gender'],int(row['JobLevel']),row['JobRole'],row['MaritalStatus'],row['FECHA_DE_INGRESO'],str(row['FECHA_DE_CESE']) ,float(row['MonthlyIncome']),row['Ovetime'],int(row['EnvironmentSatisfaction']),int(row['JobSatisfaction']),int(row['PerformanceRating']),int(row['WorkLifeBalance'])))
       
-    self.conn.commit()
+      self.conn.commit()
     print("[INFO] : All Data Added")
     
     self.cursor.close()
@@ -33,10 +33,14 @@ class ResignationPrediction():
     try:
       self.label_encoders = {}
       if filename == None:
+        print(f"[INFO] : Reading FRROM DataBase")
         self.data = pd.read_sql_query("SELECT * from resignations",self.conn)
+        self.data.drop(columns=['id'],inplace=True)
+        self.data['FECHA_DE_CESE'] = pd.to_datetime(self.data['FECHA_DE_CESE'])
       else:
         print(f"[INFO] : Reading {filename}")
         self.data = pd.read_excel(filename)
+      
       self.temp_data = self.data.copy()
       self.data['Ovetime'].fillna('No', inplace=True)
       self.data['Ovetime'] = self.data['Ovetime'].replace('Si', 'Yes')
@@ -46,6 +50,7 @@ class ResignationPrediction():
       #data separation
       self.data['Resigned'] = self.data['FECHA_DE_CESE'].apply(lambda x: 'Yes' if pd.notna(x) else 'No')
       self.data['Resigned'] = self.data['FECHA_DE_CESE'].apply(lambda x: 1 if pd.notna(x) else 0)
+      print(self.data['Resigned'].unique())
       self.data.drop(['FECHA_DE_CESE'],inplace=True,axis=1)
       self.data = self.data[self.data['FECHA_DE_INGRESO'] != 'SOLTERO (A)']
       self.data.drop('FECHA_DE_INGRESO',inplace=True,axis=1)
@@ -61,9 +66,9 @@ class ResignationPrediction():
       self.preprocessed_data['Resigned'] = self.preprocessed_data['Resigned'].apply(lambda x: random.choice(categories) if random.random() < noise_prob else x)
       X = self.preprocessed_data.drop('Resigned',axis=1)
       y = self.preprocessed_data['Resigned']
-
+      print(y.unique())
       self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
+      
     except Exception as e:
       print(e)
     
@@ -84,7 +89,7 @@ class ResignationPrediction():
     print(f'Accuracy: {accuracy}')
     print(classification_report(self.y_test, y_pred))
     print("[INFO] : Saving Prediction Results -> results.xlsx")
-    self.final_data = self.X_test
+    self.final_data = self.X_test.copy()
     self.final_data['Target_Resigned'] = self.y_test
     self.final_data['Predicted_Resigned'] = y_pred
     self.final_data = self.final_data.reset_index(drop=True)
@@ -103,6 +108,7 @@ class ResignationPrediction():
     y_pred = self.rf_classifier.predict(self.X_test) 
     data = []
     report = classification_report(self.y_test, y_pred,output_dict=True)
+    print(report)
     for class_name, metrics in report.items():
         if class_name not in ["accuracy", "macro avg", "weighted avg"]:
             row = [class_name, metrics["precision"], metrics["recall"], metrics["f1-score"], metrics["support"]]
@@ -131,7 +137,7 @@ class ResignationPrediction():
 
     # Show the table
     pyo.plot(fig)
-    pyo.iplot(fig, show_link=False)
+    #pyo.iplot(fig, show_link=False)
 
 
 
