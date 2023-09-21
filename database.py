@@ -95,13 +95,13 @@ class DATABASE():
     def DeleteQuery(self,id):
         self.cursor.execute("DELETE FROM resignations WHERE id=?", (int(id),))
         self.conn.commit()
-        self.cursor.close()
+        #self.cursor.close()
         print("[INFO]: Data Deleted Successfully")
 
     def DeleteTable(self):
         self.cursor.execute(f"DROP TABLE IF EXISTS resignations;")
         self.conn.commit()
-        self.cursor.close()
+        #self.cursor.close()
 
 db =  DATABASE()
 
@@ -188,6 +188,7 @@ def Insert():
     Insert = customtkinter.CTkButton(master=frame3, text="Insert Worker", command=AddEntry,
                                         bg_color='Green', fg_color='Green',)
     Insert.grid(row=6, column=0,columnspan = 4, pady=12, padx=10,sticky='ew')
+    insert_window.mainloop()
 
 
 
@@ -305,3 +306,4 @@ def Operations_window(rp_obj):
     Delete_Table = customtkinter.CTkButton(master=frame2, text="Delete Table", command=DeletedTable,
                                         bg_color='Red', fg_color='Red',)
     Delete_Table.grid(row=2, column=9, pady=12, padx=10)
+    popup_window.mainloop()

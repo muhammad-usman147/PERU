@@ -92,4 +92,5 @@ def UpdateWorker(ID, db):
     Insert = customtkinter.CTkButton(master=frame3, text="Update Worker", command=AddEntry,
                                         bg_color='Green', fg_color='Green',)
     Insert.grid(row=6, column=0,columnspan = 4, pady=12, padx=10,sticky='ew')
+    insert_window.mainloop()
 

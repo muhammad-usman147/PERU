@@ -82,6 +82,7 @@ def popup_window(rp_obj):
     search_button = customtkinter.CTkButton(master=frame2, text="Browse", command=BrowseAgeRange,
                                         bg_color='Green', fg_color='Green',)
     search_button.grid(row=2, column=4, pady=12, padx=10)
+    popup_window.mainloop()
 
 
 
