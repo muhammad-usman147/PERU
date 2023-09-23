@@ -255,7 +255,14 @@ def DownloadPdfPredictions():
     pdf.build(pdf_table)
     print("[INFO] : Predictions Saved As predictions_table.pdf")
 def DownloadExcelPredictions():
-    rp_obj.final_data.to_excel("predictions.xlsx",index=False)
+    temp = rp_obj.final_data.copy()
+    temp['FECHA_DE_INGRESO'] = pd.to_datetime(temp['FECHA_DE_INGRESO'])
+    temp['month'] =  temp['FECHA_DE_INGRESO'].dt.month
+    temp['day'] =  temp['FECHA_DE_INGRESO'].dt.day
+    temp['year'] =  temp['FECHA_DE_INGRESO'].dt.year
+    temp.drop(columns =['FECHA_DE_INGRESO'],inplace=True)
+    temp.to_excel("predictions.xlsx",index=False)
+    
     print("[INFO] : Data SAVED IN EXCEL (predictions.xlsx)")
 
 
